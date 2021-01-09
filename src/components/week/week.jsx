@@ -1,7 +1,7 @@
 import React from "react";
 import "./week.css";
 
-const Week = () => {
+const Week = (props) => {
   let hours = [];
   for (let i = 0; i <= 23; i++) {
     hours = [...hours, `${i}:00`];
@@ -9,12 +9,27 @@ const Week = () => {
   return (
     <div className="calendar">
       <header>
+        <div className="user-info">
+          <h3>{props.name}</h3>
+        </div>
         <div className="calendar-title">
           <div className="icon secondary">‹</div>
           <h1 className="icon-header">
             <strong>18 JAN – 24 JAN</strong> 2016
           </h1>
           <div className="icon secondary">›</div>
+        </div>
+        <div className="log">
+          {!props.name && (
+            <button className="log-button" onClick={props.signIn}>
+              Log in
+            </button>
+          )}
+          {!!props.name && (
+            <button className="log-button" onClick={props.signOut}>
+              Log out
+            </button>
+          )}
         </div>
       </header>
       <div className="outer">
