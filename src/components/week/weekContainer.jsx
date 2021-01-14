@@ -16,6 +16,7 @@ const SCOPES = [
 class WeekContainer extends React.Component {
   state = {
     name: null,
+    now: new Date(),
   };
   componentDidMount() {
     const _onInit = (auth2) => {
@@ -74,15 +75,19 @@ class WeekContainer extends React.Component {
         }
       );
   };
-
+  nextWeek = () => this.setState({ now: new Date(Date.parse(this.state.now) + 604800000) });
+  prevWeek = () => this.setState({ now: new Date(this.state.now - 604800000) });
   render() {
-    const { name } = this.state;
+    const { name, now } = this.state;
     return (
       <Week
         signIn={this.signIn}
         signOut={this.signOut}
         name={name}
         getList={this.getCalendarList}
+        now={now}
+        nextWeek={this.nextWeek}
+        prevWeek={this.prevWeek}
       />
     );
   }

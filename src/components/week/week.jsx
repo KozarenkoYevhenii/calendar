@@ -6,6 +6,42 @@ const Week = (props) => {
   for (let i = 0; i <= 23; i++) {
     hours = [...hours, `${i}:00`];
   }
+  
+  const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  const datesOfWeek = [];
+  const today = new Date()
+  const now = props.now;
+  const currentDate = now.getDate();
+  const currentDay = now.getDay();
+  const currentWeekDay = new Intl.DateTimeFormat('en-US', { weekday: 'short' }).format(now)
+  const currentMonth = new Intl.DateTimeFormat('en-US', { month: 'short' }).format(now)
+  
+  switch (currentDay) {
+    case 0:
+      for (let i = 0; i < 7; i++) datesOfWeek[i] = currentDate - (i + 6);
+      break;
+    case 1:
+      for (let i = 0; i < 7; i++) datesOfWeek[i] = currentDate + i;
+      break;
+    case 2:
+      for (let i = 0; i < 7; i++) datesOfWeek[i] = currentDate + i - 1;
+      break;
+    case 3:
+      for (let i = 0; i < 7; i++) datesOfWeek[i] = currentDate + i - 2;
+      break;
+    case 4:
+      for (let i = 0; i < 7; i++) datesOfWeek[i] = currentDate + i - 3;
+      break;
+    case 5:
+      for (let i = 0; i < 7; i++) datesOfWeek[i] = currentDate + i - 4;
+      break;
+    case 6:
+      for (let i = 0; i < 7; i++) datesOfWeek[i] = currentDate + i - 5;
+      break;
+    default:
+      console.log("date error");
+  }
+
   return (
     <div className="calendar">
       <header>
@@ -13,18 +49,17 @@ const Week = (props) => {
           <h3>{props.name}</h3>
         </div>
         <div className="calendar-title">
-          <div className="icon secondary">‹</div>
+          <button className="icon secondary" onClick={props.prevWeek}>‹</button>
           <h1 className="icon-header">
-            <strong>18 JAN – 24 JAN</strong> 2016
+            <strong>{datesOfWeek[0] +" "+ currentMonth} – {datesOfWeek[6] +" "+ currentMonth} </strong> {now.getFullYear()}
           </h1>
-          <div className="icon secondary">›</div>
+          <button className="icon secondary" onClick={props.nextWeek}>›</button>
         </div>
         <div className="log">
           {!props.name && (
             <button className="log-button" onClick={props.signIn}>
               Log in
             </button>
-            
           )}
           <button onClick={props.getList}>Get list</button>
           {!!props.name && (
@@ -39,13 +74,17 @@ const Week = (props) => {
           <thead>
             <tr>
               <th className="headcol"></th>
-              <th>Mon, 18</th>
-              <th>Tue, 19</th>
-              <th className="today">Wed, 20</th>
-              <th>Thu, 21</th>
-              <th>Fri, 22</th>
-              <th className="secondary">Sat, 23</th>
-              <th className="secondary">Sun, 24</th>
+              {daysOfWeek.map((day, index) => {
+                let className = "";
+                if (index === 5 || index === 6) className = "secondary";
+                if (today.getDate() === currentDate && daysOfWeek[index] === currentWeekDay )
+                  className = "today";
+                return (
+                  <th className={className}>
+                    {day}, {datesOfWeek[index]}
+                  </th>
+                );
+              })}
             </tr>
           </thead>
         </table>
