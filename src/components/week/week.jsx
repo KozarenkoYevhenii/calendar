@@ -24,7 +24,9 @@ const Week = (props) => {
             <button className="log-button" onClick={props.signIn}>
               Log in
             </button>
+            
           )}
+          <button onClick={props.getList}>Get list</button>
           {!!props.name && (
             <button className="log-button" onClick={props.signOut}>
               Log out
