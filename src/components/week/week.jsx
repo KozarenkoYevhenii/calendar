@@ -6,16 +6,19 @@ const Week = (props) => {
   for (let i = 0; i <= 23; i++) {
     hours = [...hours, `${i}:00`];
   }
-  
+  const { events, now } = props;
   const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
   const datesOfWeek = [];
-  const today = new Date()
-  const now = props.now;
+  const today = new Date();
   const currentDate = now.getDate();
   const currentDay = now.getDay();
-  const currentWeekDay = new Intl.DateTimeFormat('en-US', { weekday: 'short' }).format(now)
-  const currentMonth = new Intl.DateTimeFormat('en-US', { month: 'short' }).format(now)
-  
+  const currentWeekDay = new Intl.DateTimeFormat("en-US", {
+    weekday: "short",
+  }).format(now);
+  const currentMonth = new Intl.DateTimeFormat("en-US", {
+    month: "short",
+  }).format(now);
+
   switch (currentDay) {
     case 0:
       for (let i = 0; i < 7; i++) datesOfWeek[i] = currentDate - (i + 6);
@@ -49,11 +52,19 @@ const Week = (props) => {
           <h3>{props.name}</h3>
         </div>
         <div className="calendar-title">
-          <button className="icon secondary" onClick={props.prevWeek}>‹</button>
+          <button className="icon secondary" onClick={props.prevWeek}>
+            ‹
+          </button>
           <h1 className="icon-header">
-            <strong>{datesOfWeek[0] +" "+ currentMonth} – {datesOfWeek[6] +" "+ currentMonth} </strong> {now.getFullYear()}
+            <strong>
+              {datesOfWeek[0] + " " + currentMonth} – 
+              {datesOfWeek[6] + " " + currentMonth}{" "}
+            </strong>{" "}
+            {now.getFullYear()}
           </h1>
-          <button className="icon secondary" onClick={props.nextWeek}>›</button>
+          <button className="icon secondary" onClick={props.nextWeek}>
+            ›
+          </button>
         </div>
         <div className="log">
           {!props.name && (
@@ -76,7 +87,10 @@ const Week = (props) => {
               {daysOfWeek.map((day, index) => {
                 let className = "";
                 if (index === 5 || index === 6) className = "secondary";
-                if (today.getDate() === currentDate && daysOfWeek[index] === currentWeekDay )
+                if (
+                  today.getDate() === currentDate &&
+                  daysOfWeek[index] === currentWeekDay
+                )
                   className = "today";
                 return (
                   <th className={className}>
@@ -90,23 +104,38 @@ const Week = (props) => {
         <div className="wrap">
           <table className="offset">
             <tbody>
-              {hours.map((hour) => {
+              {hours.map((hour, index) => {
                 return (
-                  <tr>
-                    <td className="headcol">{hour}</td>
-                    <td></td>
-                    <td></td>
-                    <td className="past"></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
+                  <tr id={index}>
+                    <td className="headcol" id={index}>
+                      {hour}
+                    </td>
+                    {datesOfWeek.map((date, i) => {
+                      if (events && props.isAuth) {
+                        
+                        const filteredEvents = events.filter((event) => {
+                          const eventDate = new Date(event.start.dateTime);
+                          return (
+                            eventDate.getHours() === index &&
+                            eventDate.getDate() === date &&
+                            eventDate.getMonth() === now.getMonth()
+                          );
+                        });
+                        return (
+                          <td id={i} className={filteredEvents[0] ? "event double" : ""}>
+                            {filteredEvents[0] ? filteredEvents[0].summary : ""}
+                          </td>
+                        );
+                      } else {
+                        return <td id={i}></td>;
+                      }
+                    })}
                   </tr>
                 );
               })}
               {/* <tr>
                 <td className="headcol"></td>
-                <td></td>
+                <td className="past"></td>
                 <td className="now"></td>
                 <td></td>
                 <td></td>

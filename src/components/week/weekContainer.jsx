@@ -13,6 +13,8 @@ class WeekContainer extends React.Component {
   state = {
     name: null,
     now: new Date(),
+    events: null,
+    isAuth: false,
   };
   _onError = (err) => {
     console.log("error", err);
@@ -21,19 +23,31 @@ class WeekContainer extends React.Component {
     return window.gapi.client
       .request({
         path: "https://www.googleapis.com/calendar/v3/users/me/calendarList",
-        scope: SCOPES,
-        apiKey: API_KEY,
-        clientId: REACT_APP_GOOGLE_CLIENT_ID,
       })
       .then(
         (response) => {
-          console.log(response.result.items);
+          this.getEvents("primary")   //response.result.items[2].id
         },
         (reason) => {
           console.log("Error: " + reason.result.error.message);
         }
       );
   };
+  getEvents = (calendarId) => {
+    return window.gapi.client
+      .request({
+        path: `https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events?timeMin=${this.state.now.toISOString()}`,
+      })
+      .then(
+        (response) => {
+          this.setState({events : response.result.items})
+          console.log(this.state.events);
+        },
+        (reason) => {
+          console.log("Error: " + reason.result.error.message);
+        }
+      );
+  }
   initClient = () => {
     window.gapi.client.init({
       apiKey: API_KEY,
@@ -53,12 +67,16 @@ class WeekContainer extends React.Component {
   };
   signIn = () => {
     window.gapi.load("client:auth2", this.initClient);
+    this.setState({
+      isAuth: true
+    });
   };
   signOut = () => {
     const auth2 = window.gapi.auth2.getAuthInstance();
     auth2.signOut().then(() => {
       this.setState({
         name: null,
+        isAuth: false
       });
     });
   };
@@ -75,6 +93,8 @@ class WeekContainer extends React.Component {
         now={now}
         nextWeek={this.nextWeek}
         prevWeek={this.prevWeek}
+        events={this.state.events}
+        isAuth={this.state.isAuth}
       />
     );
   }
