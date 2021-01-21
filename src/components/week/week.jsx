@@ -1,12 +1,22 @@
 import React from "react";
 import "./week.css";
 
-const Week = (props) => {
+const Week = ({
+  name,
+  prevWeek,
+  nextWeek,
+  signIn,
+  signOut,
+  isAuth,
+  events,
+  now,
+  handleClick,
+}) => {
   let hours = [];
   for (let i = 0; i <= 23; i++) {
     hours = [...hours, `${i}:00`];
   }
-  const { events, now } = props;
+
   const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
   const datesOfWeek = [];
   const today = new Date();
@@ -49,10 +59,10 @@ const Week = (props) => {
     <div className="calendar">
       <header>
         <div className="user-info">
-          <h3>{props.name}</h3>
+          <h3>{name}</h3>
         </div>
         <div className="calendar-title">
-          <button className="icon secondary" onClick={props.prevWeek}>
+          <button className="icon secondary" onClick={prevWeek}>
             ‹
           </button>
           <h1 className="icon-header">
@@ -62,18 +72,18 @@ const Week = (props) => {
             </strong>{" "}
             {now.getFullYear()}
           </h1>
-          <button className="icon secondary" onClick={props.nextWeek}>
+          <button className="icon secondary" onClick={nextWeek}>
             ›
           </button>
         </div>
         <div className="log">
-          {!props.name && (
-            <button className="log-button" onClick={props.signIn}>
+          {!name && (
+            <button className="log-button" onClick={signIn}>
               Log in
             </button>
           )}
-          {!!props.name && (
-            <button className="log-button" onClick={props.signOut}>
+          {!!name && (
+            <button className="log-button" onClick={signOut}>
               Log out
             </button>
           )}
@@ -93,7 +103,7 @@ const Week = (props) => {
                 )
                   className = "today";
                 return (
-                  <th className={className}>
+                  <th className={className} id={index} key={index}>
                     {day}, {datesOfWeek[index]}
                   </th>
                 );
@@ -104,50 +114,43 @@ const Week = (props) => {
         <div className="wrap">
           <table className="offset">
             <tbody>
-              {hours.map((hour, index) => {
+              {hours.map((hour, hourIndex) => {
                 return (
-                  <tr id={index}>
-                    <td className="headcol" id={index}>
+                  <tr id={hourIndex} key={hourIndex}>
+                    <td className="headcol" id={hourIndex} key={hourIndex}>
                       {hour}
                     </td>
                     {datesOfWeek.map((date, i) => {
-                      if (events && props.isAuth) {
-                        
+                      if (events && isAuth) {
                         const filteredEvents = events.filter((event) => {
                           const eventDate = new Date(event.start.dateTime);
                           return (
-                            eventDate.getHours() === index &&
+                            eventDate.getHours() === hourIndex &&
                             eventDate.getDate() === date &&
                             eventDate.getMonth() === now.getMonth()
                           );
                         });
                         return (
-                          <td id={i} className={filteredEvents[0] ? "event double" : ""}>
+                          <td
+                            id={i}
+                            key={i}
+                            className={filteredEvents[0] ? "event double" : ""}
+                            onClick={() => {handleClick(filteredEvents[0]?.id,  hourIndex,
+                                  date,
+                                  now.getMonth(),
+                                  now.getFullYear() )}}
+                          >
                             {filteredEvents[0] ? filteredEvents[0].summary : ""}
                           </td>
                         );
                       } else {
-                        return <td id={i}></td>;
+                        return <td id={i} key={i}></td>;
                       }
                     })}
                   </tr>
                 );
               })}
-              {/* <tr>
-                <td className="headcol"></td>
-                <td className="past"></td>
-                <td className="now"></td>
-                <td></td>
-                <td></td>
-                <td>
-                  <div className="event double">
-                    <input id="check" type="checkbox" className="checkbox" />
-                    <label htmlFor="check"></label>8:30–9:30 Yoga
-                  </div>
-                </td>
-                <td></td>
-                <td></td>
-              </tr> */}
+              
             </tbody>
           </table>
         </div>

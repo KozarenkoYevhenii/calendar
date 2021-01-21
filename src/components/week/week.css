@@ -225,12 +225,6 @@ button.secondary:focus {
   outline: 0;
 }
 
-tr td:nth-child(2),
-tr td:nth-child(3),
-.past {
-  background: #fafafa;
-}
-
 .today {
   color: red;
 }
@@ -273,3 +267,4 @@ tr td:nth-child(3),
 .user-info {
   width: 70px;
 }
+

@@ -1,13 +1,11 @@
 import React from "react";
 import Week from "./week";
-
-const REACT_APP_GOOGLE_CLIENT_ID =
-  "20406485661-r4d3m1gamht4qlilru5ijhj6doekghuh.apps.googleusercontent.com";
-const API_KEY = "AIzaSyDiIYokkSj7GcHHb1yk6QVeJeR5IiiQlNc";
-const DISCOVERY_DOCS = [
-  "https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest",
-];
-const SCOPES = "https://www.googleapis.com/auth/calendar";
+import {
+  REACT_APP_GOOGLE_CLIENT_ID,
+  API_KEY,
+  DISCOVERY_DOCS,
+  SCOPES,
+} from "../../api/config";
 
 class WeekContainer extends React.Component {
   state = {
@@ -26,7 +24,7 @@ class WeekContainer extends React.Component {
       })
       .then(
         (response) => {
-          this.getEvents("primary")   //response.result.items[2].id
+          this.getEvents("primary"); //response.result.items[2].id
         },
         (reason) => {
           console.log("Error: " + reason.result.error.message);
@@ -40,45 +38,84 @@ class WeekContainer extends React.Component {
       })
       .then(
         (response) => {
-          this.setState({events : response.result.items})
-          console.log(this.state.events);
+          this.setState({ events: response.result.items });
+          console.log(response.result.items);
         },
         (reason) => {
           console.log("Error: " + reason.result.error.message);
         }
       );
-  }
+  };
   initClient = () => {
-    window.gapi.client.init({
-      apiKey: API_KEY,
-      clientId: REACT_APP_GOOGLE_CLIENT_ID,
-      scope: SCOPES,
-      discoveryDocs: DISCOVERY_DOCS,
-    }).then(() => {
-      const googleAuth = window.gapi.auth2.getAuthInstance();
-      googleAuth.signIn().then((googleUser) => {
-        const profile = googleUser.getBasicProfile();
+    window.gapi.client
+      .init({
+        apiKey: API_KEY,
+        clientId: REACT_APP_GOOGLE_CLIENT_ID,
+        scope: SCOPES,
+        discoveryDocs: DISCOVERY_DOCS,
+      })
+      .then(() => {
+        const googleAuth = window.gapi.auth2.getAuthInstance();
+        googleAuth.signIn().then((googleUser) => {
+          const profile = googleUser.getBasicProfile();
           this.setState({
             name: profile.getName(),
+            isAuth: true,
           });
-        this.getCalendarList()
-      }, this._onError)
-    })
+          this.getCalendarList();
+        }, this._onError);
+      });
   };
   signIn = () => {
     window.gapi.load("client:auth2", this.initClient);
-    this.setState({
-      isAuth: true
-    });
   };
   signOut = () => {
     const auth2 = window.gapi.auth2.getAuthInstance();
     auth2.signOut().then(() => {
       this.setState({
         name: null,
-        isAuth: false
+        isAuth: false,
       });
     });
+  };
+  createEvent = (hour, date, month, year) => {
+    console.log(this.state.events);
+    const summary = prompt("Enter summary for event");
+    summary &&
+      window.gapi.client.calendar.events
+        .insert({
+          calendarId: "primary",
+          resource: {
+            end: {
+              dateTime: `${year}-${
+                month > 9 ? month : "0" + (month + 1)
+              }-${date}T${hour + 1}:00:00+02:00`,
+            },
+            start: {
+              dateTime: `${year}-${
+                month > 9 ? month : "0" + (month + 1)
+              }-${date}T${hour}:00:00+02:00`,
+            },
+            summary,
+          },
+        })
+        .execute();
+    window.setTimeout(() => this.getEvents("primary"), 500)
+  };
+  deleteEvent = (eventId) => {
+    console.log(this.state.events);
+    window.gapi.client.calendar.events.delete({
+      calendarId: "primary",
+      eventId: eventId,
+    }).execute();
+    window.setTimeout(() => this.getEvents("primary"), 500)
+  };
+  handleClick = (eventId, hour, date, month, year) => {
+    if (eventId) {
+      window.confirm("Delete event?") && this.deleteEvent(eventId);
+    } else {
+      this.createEvent(hour, date, month, year);
+    }
   };
   nextWeek = () =>
     this.setState({ now: new Date(Date.parse(this.state.now) + 604800000) });
@@ -95,6 +132,7 @@ class WeekContainer extends React.Component {
         prevWeek={this.prevWeek}
         events={this.state.events}
         isAuth={this.state.isAuth}
+        handleClick={this.handleClick}
       />
     );
   }
